@@ -1,130 +1,222 @@
 # Schema & Ontology Registry
 
-A centralized registry for managing and versioning JSON Schemas, OpenAPI specifications, and glossary terms. Built with Next.js, TypeScript, Prisma, and PostgreSQL.
+> A production-ready, centralized registry for managing and versioning JSON Schemas, OpenAPI specifications, and domain glossaries across distributed systems.
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0-black)](https://nextjs.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748)](https://www.prisma.io/)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
+## Overview
+
+The Schema & Ontology Registry solves the critical problem of schema drift, inconsistent data validation, and lack of shared terminology across microservices by providing a single source of truth for data contracts and domain concepts. Teams can publish, discover, version, and consume schemas programmatically while maintaining backwards compatibility and clear migration paths.
+
+### Key Benefits
+
+- 🎯 **Single Source of Truth**: Centralized schema repository for all services
+- 📦 **Version Management**: Semantic versioning with full history and deprecation tracking
+- 🔍 **Discovery**: Search and browse schemas across namespaces
+- 🔄 **Change Tracking**: Complete audit trail of all modifications
+- 🚀 **Developer-Friendly**: Simple APIs, comprehensive docs, and tooling
+- 🏗️ **Extensible**: Plugin architecture for custom validation, notifications, and storage
+- 🧪 **Production-Ready**: Full test coverage, logging, error handling, and Docker support
 
 ## Features
 
-- **Schema Versioning**: Store and version JSON Schemas, OpenAPI specs, and other schema types
-- **Namespace Organization**: Organize schemas and glossary terms by domain/namespace
-- **Glossary Management**: Define and maintain domain-specific terminology
-- **Version Comparison**: Visual diff tool to compare schema versions
-- **Retrieval APIs**: Simple HTTP APIs for clients to fetch schemas and glossary terms
-- **Web UI**: Browse namespaces, view schemas, compare versions, and explore glossary terms
+### Core Capabilities
+- ✅ **Schema Versioning**: JSON Schema, OpenAPI, Avro, Protocol Buffers, GraphQL
+- ✅ **Namespace Organization**: Isolate schemas by domain, team, or service
+- ✅ **Glossary Management**: Shared terminology with aliases and definitions
+- ✅ **Version Comparison**: Visual and semantic diff between schema versions
+- ✅ **Tags & Categories**: Organize schemas with custom tags
+- ✅ **Relationships**: Track schema dependencies and evolution
+- ✅ **Validation**: Automated schema validation on publish
+- ✅ **Change Logs**: Complete audit trail with author and timestamp
+- ✅ **Web UI**: Browse, search, and compare schemas visually
+- ✅ **REST APIs**: Simple HTTP APIs for integration
+
+### Quality & Operations
+- 🧪 **Test Coverage**: Unit and integration tests with Vitest
+- 📝 **Input Validation**: Zod schemas for all API inputs
+- ⚠️ **Error Handling**: Centralized, consistent error responses
+- 📊 **Structured Logging**: Pino logging with context
+- 🐳 **Docker Support**: Production-ready containers
+- 🔌 **Extension Points**: Adapters for notifications, validation, storage
 
 ## Tech Stack
 
-- **Frontend/Backend**: Next.js 16 with App Router + TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Styling**: Tailwind CSS
+- **Frontend/Backend**: Next.js 16 with App Router + TypeScript 5
+- **Database**: PostgreSQL with Prisma ORM 6
+- **Validation**: Zod for runtime type safety
+- **Testing**: Vitest with coverage reporting
+- **Logging**: Pino structured logging
+- **Styling**: Tailwind CSS 4
+- **Deployment**: Docker + docker-compose
 
-## Getting Started
+## Quick Start
 
-### Prerequisites
+### Using Docker (Recommended)
 
-- Node.js 20+
-- PostgreSQL database
-
-### Installation
-
-1. Clone the repository:
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd schema-ontology-registry
-```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
+# Copy environment variables
 cp .env.example .env
+
+# Start PostgreSQL and the application
+docker-compose up -d
+
+# The app will be available at http://localhost:3000
+# PostgreSQL will be available at localhost:5432
 ```
 
-Edit `.env` and configure your database connection:
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
-```
+### Local Development
 
-4. Run database migrations:
+#### Prerequisites
+- Node.js 20+
+- PostgreSQL 16+
+
+#### Setup
+
 ```bash
-npx prisma migrate dev
-```
+# Install dependencies
+npm install
 
-5. Seed the database with sample data:
-```bash
-npm run db:seed
-```
+# Set up environment
+cp .env.example .env
+# Edit .env with your database URL
 
-6. Generate Prisma Client:
-```bash
+# Generate Prisma client
 npx prisma generate
-```
 
-7. Start the development server:
-```bash
+# Run migrations
+npm run db:migrate
+
+# Seed with sample data
+npm run db:seed
+
+# Start development server
 npm run dev
 ```
 
-8. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## Project Structure
 
 ```
 schema-ontology-registry/
 ├── app/
-│   ├── api/                    # API routes
-│   │   ├── namespaces/         # CRUD for namespaces
-│   │   ├── schemas/            # CRUD for schemas
-│   │   ├── glossary/           # CRUD for glossary terms
-│   │   └── schema/             # Public retrieval API
-│   ├── namespace/              # UI pages
-│   │   └── [namespace]/
-│   │       ├── schemas/        # Schema viewer with diff
-│   │       └── glossary/       # Glossary viewer
-│   └── page.tsx                # Home page (namespace list)
+│   ├── api/                       # API route handlers
+│   │   ├── namespaces/            # Namespace CRUD
+│   │   ├── schemas/               # Schema CRUD
+│   │   ├── glossary/              # Glossary CRUD
+│   │   └── schema/                # Public retrieval API
+│   ├── namespace/[namespace]/     # UI pages
+│   │   ├── schemas/               # Schema viewer + diff
+│   │   └── glossary/              # Glossary viewer
+│   └── page.tsx                   # Home page
 ├── lib/
-│   └── prisma.ts               # Prisma client singleton
+│   ├── services/                  # Business logic layer
+│   │   └── schema.service.ts
+│   ├── validation/                # Zod schemas
+│   │   └── schemas.ts
+│   ├── errors/                    # Error handling
+│   │   └── index.ts
+│   ├── events/                    # Event bus
+│   │   └── index.ts
+│   ├── logger/                    # Structured logging
+│   │   └── index.ts
+│   ├── adapters/                  # Extension interfaces
+│   │   ├── notification.adapter.ts
+│   │   └── validation.adapter.ts
+│   └── prisma.ts                  # Prisma client
 ├── prisma/
-│   ├── schema.prisma           # Database schema
-│   └── seed.ts                 # Seed script
+│   ├── schema.prisma              # Database schema
+│   ├── seed-enhanced.ts           # Rich seed data
+│   └── migrations/                # Database migrations
+├── tests/
+│   ├── unit/                      # Unit tests
+│   │   ├── schema.service.test.ts
+│   │   └── validation.test.ts
+│   ├── integration/               # Integration tests
+│   └── fixtures/                  # Test data
+├── docs/
+│   ├── ARCHITECTURE.md            # System architecture
+│   ├── CONTRIBUTING.md            # Development guide
+│   └── PHASE3_OVERVIEW.md         # Roadmap
+├── Dockerfile                     # Production container
+├── docker-compose.yml             # Local dev environment
+├── vitest.config.ts               # Test configuration
 └── README.md
 ```
 
 ## Domain Model
 
-### SchemaNamespace
+### Core Entities
+
+#### SchemaNamespace
 Logical grouping for related schemas and glossary terms.
-- `id`: Unique identifier
-- `key`: URL-friendly namespace key (e.g., "events")
-- `name`: Human-readable name
-- `description`: Optional description
+- `id`, `key`, `name`, `description`
+- `status`: active | archived
+- `metadata`: JSON for custom properties
+- Relations: schemas, glossaryTerms, tags
 
-### SchemaDefinition
-Versioned schema content.
-- `id`: Unique identifier
-- `namespaceId`: Reference to namespace
-- `version`: Semantic version (e.g., "1.0.0")
-- `type`: Schema type (json_schema | openapi | other)
-- `contentJson`: The actual schema content (JSON)
-- `createdAt`: Creation timestamp
+#### SchemaDefinition
+Versioned schema content with full lifecycle.
+- `id`, `version`, `type`, `contentJson`
+- `author`, `status`: draft | review | approved | published | deprecated | archived
+- `isDeprecated`, `deprecatedAt`
+- `metadata`: JSON for custom properties
+- Relations: namespace, validations, tags, relationships
 
-### GlossaryTerm
+#### GlossaryTerm
 Domain-specific terminology.
-- `id`: Unique identifier
-- `namespaceId`: Reference to namespace
-- `term`: The term name
-- `definition`: Term definition
-- `aliasesJson`: Array of alternative names (JSON)
-- `createdAt`: Creation timestamp
-- `updatedAt`: Last update timestamp
+- `id`, `term`, `definition`
+- `aliasesJson`: array of alternative names
+- Relation: namespace
+
+#### Tag
+Categorization and filtering.
+- `id`, `name`, `color`, `description`
+- Relations: namespaces, schemas
+
+#### SchemaValidation
+Validation results for schemas.
+- `id`, `isValid`, `errors`, `warnings`
+- `validatorType`, `validatorVersion`
+- Relation: schema
+
+#### ChangeLog
+Complete audit trail.
+- `id`, `entityType`, `entityId`, `action`
+- `changes`: JSON diff
+- `performedBy`, `performedAt`
+
+#### SchemaRelationship
+Schema dependencies and evolution.
+- `id`, `sourceSchemaId`, `targetSchemaId`
+- `relationshipType`: extends | references | imports | deprecated_by
+- `description`
+
+### Entity Relationships
+
+```
+SchemaNamespace (1) ──< (N) SchemaDefinition
+SchemaNamespace (1) ──< (N) GlossaryTerm
+SchemaNamespace (N) >──< (N) Tag
+SchemaDefinition (N) >──< (N) Tag
+SchemaDefinition (1) ──< (N) SchemaValidation
+SchemaDefinition (1) ──< (N) SchemaRelationship (source)
+SchemaDefinition (1) ──< (N) SchemaRelationship (target)
+```
 
 ## API Reference
 
 ### Retrieval APIs (Public)
 
-These are the primary APIs that client services should use to fetch schemas and glossary terms.
+These are the primary APIs for client services to fetch schemas and glossary.
 
 #### Get Schema by Namespace and Version
 
@@ -140,10 +232,10 @@ curl http://localhost:3000/api/schema/events/1.0.0
 **Response:**
 ```json
 {
-  "id": "...",
-  "namespaceId": "...",
+  "id": "cm123...",
   "version": "1.0.0",
   "type": "json_schema",
+  "status": "published",
   "contentJson": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "UserCreatedEvent",
@@ -152,10 +244,8 @@ curl http://localhost:3000/api/schema/events/1.0.0
   },
   "namespace": {
     "key": "events",
-    "name": "Events",
-    "description": "..."
-  },
-  "createdAt": "2024-01-01T00:00:00.000Z"
+    "name": "Domain Events"
+  }
 }
 ```
 
@@ -170,60 +260,94 @@ GET /api/glossary/:namespace
 curl http://localhost:3000/api/glossary/events
 ```
 
-**Response:**
-```json
-[
-  {
-    "id": "...",
-    "namespaceId": "...",
-    "term": "Event",
-    "definition": "A significant occurrence or change in state...",
-    "aliasesJson": ["Domain Event", "System Event"],
-    "namespace": {
-      "key": "events",
-      "name": "Events"
-    },
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-]
-```
-
 ### Management APIs (CRUD)
 
-These APIs are for managing registry content.
-
 #### Namespaces
-
 - `GET /api/namespaces` - List all namespaces
-- `POST /api/namespaces` - Create a namespace
-- `GET /api/namespaces/:id` - Get namespace by ID
+- `POST /api/namespaces` - Create namespace
+- `GET /api/namespaces/:id` - Get namespace
 - `PUT /api/namespaces/:id` - Update namespace
 - `DELETE /api/namespaces/:id` - Delete namespace
 
 #### Schemas
-
-- `GET /api/schemas?namespaceId=:id` - List schemas for namespace
-- `POST /api/schemas` - Create a schema version
-- `GET /api/schemas/:id` - Get schema by ID
+- `GET /api/schemas?namespaceId=:id` - List schemas
+- `POST /api/schemas` - Create schema
+- `GET /api/schemas/:id` - Get schema
 - `DELETE /api/schemas/:id` - Delete schema
 
-#### Glossary Terms
-
-- `GET /api/glossary?namespaceId=:id` - List terms for namespace
-- `POST /api/glossary` - Create a glossary term
-- `GET /api/glossary/:id` - Get term by ID (or all terms by namespace key)
+#### Glossary
+- `GET /api/glossary?namespaceId=:id` - List terms
+- `POST /api/glossary` - Create term
+- `GET /api/glossary/:id` - Get term
 - `PUT /api/glossary/:id` - Update term
 - `DELETE /api/glossary/:id` - Delete term
 
-## How Clients Should Reference Schemas
+## Development
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev              # Start dev server
+npm run build            # Build for production
+npm run start            # Start production server
+
+# Testing
+npm test                 # Run tests once
+npm run test:watch       # Run tests in watch mode
+npm run test:ui          # Open Vitest UI
+npm run test:coverage    # Generate coverage report
+
+# Code Quality
+npm run typecheck        # TypeScript type checking
+npm run lint             # Run ESLint
+npm run format           # Format code with Prettier
+npm run format:check     # Check code formatting
+
+# Database
+npm run db:migrate       # Run migrations (dev)
+npm run db:migrate:deploy # Run migrations (production)
+npm run db:push          # Push schema without migration
+npm run db:seed          # Seed with rich data
+npm run db:seed:basic    # Seed with basic data
+npm run db:studio        # Open Prisma Studio
+npm run db:reset         # Reset database (dev only)
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+
+# UI mode (great for debugging)
+npm run test:ui
+```
+
+### Database Migrations
+
+```bash
+# Create a new migration
+npx prisma migrate dev --name add_new_feature
+
+# Apply migrations in production
+npm run db:migrate:deploy
+
+# Reset database (dev only - destroys data!)
+npm run db:reset
+```
+
+## Client Integration
 
 ### 1. Direct HTTP Fetch
 
-Fetch schemas at runtime using the retrieval API:
-
 ```typescript
-// TypeScript example
 async function getSchema(namespace: string, version: string) {
   const response = await fetch(
     `https://registry.example.com/api/schema/${namespace}/${version}`
@@ -231,13 +355,10 @@ async function getSchema(namespace: string, version: string) {
   return response.json();
 }
 
-// Usage
 const schema = await getSchema('events', '1.0.0');
 ```
 
-### 2. Validation in Application Code
-
-Use the fetched schema to validate data:
+### 2. Runtime Validation
 
 ```typescript
 import Ajv from 'ajv';
@@ -249,8 +370,7 @@ const validate = ajv.compile(schema.contentJson);
 const data = {
   userId: "123",
   email: "user@example.com",
-  username: "johndoe",
-  createdAt: new Date().toISOString()
+  // ...
 };
 
 if (validate(data)) {
@@ -262,8 +382,6 @@ if (validate(data)) {
 
 ### 3. Code Generation
 
-Generate types from schemas for compile-time safety:
-
 ```bash
 # Fetch schema
 curl http://localhost:3000/api/schema/events/1.0.0 | jq '.contentJson' > schema.json
@@ -274,8 +392,6 @@ npx json-schema-to-typescript schema.json > types.ts
 
 ### 4. CI/CD Integration
 
-Add schema validation to your CI/CD pipeline:
-
 ```yaml
 # .github/workflows/validate.yml
 - name: Validate against schema registry
@@ -284,80 +400,119 @@ Add schema validation to your CI/CD pipeline:
     npm run validate-events -- --schema schema.json
 ```
 
-### 5. Versioning Best Practices
-
-- Use semantic versioning (MAJOR.MINOR.PATCH)
-- MAJOR: Breaking changes
-- MINOR: Backward-compatible additions
-- PATCH: Bug fixes or clarifications
-
-Example version progression:
-- `1.0.0` - Initial release
-- `1.1.0` - Add optional field (non-breaking)
-- `2.0.0` - Remove field or change type (breaking)
-
-### 6. Caching Strategies
-
-Cache schemas to reduce latency:
+### 5. Caching Strategy
 
 ```typescript
 const schemaCache = new Map();
 
 async function getCachedSchema(namespace: string, version: string) {
   const key = `${namespace}:${version}`;
-
   if (!schemaCache.has(key)) {
     const schema = await getSchema(namespace, version);
     schemaCache.set(key, schema);
   }
-
   return schemaCache.get(key);
 }
 ```
 
-### 7. Glossary Integration
+## Extension Points
 
-Reference glossary terms in documentation and code:
+### Custom Notification Adapter
 
 ```typescript
-// Fetch glossary for context
-const glossary = await fetch(
-  'https://registry.example.com/api/glossary/events'
-).then(r => r.json());
+import { INotificationAdapter, NotificationMessage } from '@/lib/adapters/notification.adapter';
 
-// Use in documentation or tooltips
-const eventTerm = glossary.find(t => t.term === 'Event');
-console.log(eventTerm.definition);
+export class SlackNotificationAdapter implements INotificationAdapter {
+  constructor(private webhookUrl: string) {}
+
+  async sendNotification(message: NotificationMessage): Promise<void> {
+    await fetch(this.webhookUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        text: message.title,
+        attachments: [{ text: message.body }],
+      }),
+    });
+  }
+}
 ```
 
-## Development
+### Custom Event Handlers
 
-### Database Commands
+```typescript
+import { eventBus } from '@/lib/events';
 
-```bash
-# Create a migration
-npx prisma migrate dev --name migration_name
+eventBus.on('schema.published', async (event) => {
+  // Send notification
+  await notificationAdapter.sendNotification({
+    title: 'Schema Published',
+    body: `${event.namespaceKey}/${event.version}`,
+    severity: 'info',
+  });
 
-# Reset database
-npx prisma migrate reset
+  // Update search index
+  await searchAdapter.indexSchema(event.schemaId);
 
-# Open Prisma Studio
-npx prisma studio
-
-# Seed database
-npm run db:seed
+  // Trigger webhooks
+  await webhookService.trigger('schema.published', event);
+});
 ```
 
-### Build & Deploy
+## Documentation
 
-```bash
-# Build for production
-npm run build
+- [Architecture Documentation](./docs/ARCHITECTURE.md) - System design and patterns
+- [Contributing Guide](./docs/CONTRIBUTING.md) - Development workflow
+- [Phase 3 Overview](./docs/PHASE3_OVERVIEW.md) - Roadmap and future plans
+- [Changelog](./CHANGELOG.md) - Version history
 
-# Start production server
-npm start
-```
+## Example Data
+
+The seed script creates:
+- **3 namespaces**: events, api-contracts, data-models
+- **4 schema versions**: UserCreatedEvent (v1, v2), OrderPlacedEvent, User API
+- **4 tags**: production, beta, deprecated, internal
+- **Glossary terms**: Event, Event Store, Consumer, REST API, etc.
+- **Relationships**: Version evolution tracking
+- **Validations**: Automated validation results
+- **Change logs**: Audit trail entries
+
+## Roadmap
+
+### Phase 4 (Q1 2026)
+- [ ] GraphQL API layer
+- [ ] Real-time schema change subscriptions (WebSocket)
+- [ ] Full-text search integration (Elasticsearch/Algolia)
+- [ ] Advanced semantic schema diffing
+- [ ] Webhook system for notifications
+
+### Phase 5 (Q2 2026)
+- [ ] CLI tool for schema management
+- [ ] SDK generation (TypeScript, Python, Go, Java)
+- [ ] Role-based access control
+- [ ] Schema linting and quality gates
+- [ ] Breaking change detection
+
+### Phase 6 (Q3 2026)
+- [ ] Multi-tenancy support
+- [ ] Schema templates marketplace
+- [ ] AI-powered schema suggestions
+- [ ] Automated migration generation
+- [ ] Performance analytics
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTING.md) for details.
 
 ## License
 
-MIT
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+## Support
+
+- 📖 [Documentation](./docs/)
+- 🐛 [Issue Tracker](https://github.com/your-org/schema-ontology-registry/issues)
+- 💬 [Discussions](https://github.com/your-org/schema-ontology-registry/discussions)
+
+---
+
+Built with ❤️ using Next.js, TypeScript, and Prisma
