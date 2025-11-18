@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SchemaNamespace {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  schemas        SchemaDefinition[]
+  glossaryTerms  GlossaryTerm[]
+
+  @@map("schema_namespaces")
+}
+
+model SchemaDefinition {
+  id          String   @id @default(cuid())
+  namespaceId String
+  version     String
+  type        SchemaType
+  contentJson Json
+  createdAt   DateTime @default(now())
+
+  namespace SchemaNamespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+
+  @@unique([namespaceId, version])
+  @@map("schema_definitions")
+}
+
+model GlossaryTerm {
+  id          String   @id @default(cuid())
+  namespaceId String
+  term        String
+  definition  String
+  aliasesJson Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  namespace SchemaNamespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+
+  @@unique([namespaceId, term])
+  @@map("glossary_terms")
+}
+
+enum SchemaType {
+  json_schema
+  openapi
+  other
+}
