@@ -18,26 +18,41 @@ model SchemaNamespace {
   key         String   @unique
   name        String
   description String?
+  metadata    Json?
+  status      NamespaceStatus @default(active)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   schemas        SchemaDefinition[]
   glossaryTerms  GlossaryTerm[]
+  tags           Tag[]
 
   @@map("schema_namespaces")
 }
 
 model SchemaDefinition {
-  id          String   @id @default(cuid())
-  namespaceId String
-  version     String
-  type        SchemaType
-  contentJson Json
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  namespaceId   String
+  version       String
+  type          SchemaType
+  contentJson   Json
+  author        String?
+  status        SchemaStatus @default(draft)
+  isDeprecated  Boolean @default(false)
+  deprecatedAt  DateTime?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  namespace SchemaNamespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+  namespace     SchemaNamespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+  validations   SchemaValidation[]
+  tags          Tag[]
+  relationships SchemaRelationship[] @relation("SourceSchema")
+  referencedBy  SchemaRelationship[] @relation("TargetSchema")
 
   @@unique([namespaceId, version])
+  @@index([namespaceId, status])
+  @@index([status, isDeprecated])
   @@map("schema_definitions")
 }
 
@@ -56,8 +71,101 @@ model GlossaryTerm {
   @@map("glossary_terms")
 }
 
+model Tag {
+  id          String   @id @default(cuid())
+  name        String
+  color       String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  namespaces SchemaNamespace[]
+  schemas    SchemaDefinition[]
+
+  @@unique([name])
+  @@map("tags")
+}
+
+model SchemaValidation {
+  id             String   @id @default(cuid())
+  schemaId       String
+  isValid        Boolean
+  errors         Json?
+  warnings       Json?
+  validatedAt    DateTime @default(now())
+  validatorType  String
+  validatorVersion String?
+
+  schema SchemaDefinition @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+
+  @@index([schemaId, validatedAt])
+  @@map("schema_validations")
+}
+
+model ChangeLog {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  action         ChangeAction
+  changes        Json?
+  performedBy    String?
+  performedAt    DateTime @default(now())
+  metadata       Json?
+
+  @@index([entityType, entityId])
+  @@index([performedAt])
+  @@map("change_logs")
+}
+
+model SchemaRelationship {
+  id              String   @id @default(cuid())
+  sourceSchemaId  String
+  targetSchemaId  String
+  relationshipType RelationType
+  description     String?
+  createdAt       DateTime @default(now())
+
+  sourceSchema SchemaDefinition @relation("SourceSchema", fields: [sourceSchemaId], references: [id], onDelete: Cascade)
+  targetSchema SchemaDefinition @relation("TargetSchema", fields: [targetSchemaId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSchemaId, targetSchemaId, relationshipType])
+  @@map("schema_relationships")
+}
+
 enum SchemaType {
   json_schema
   openapi
+  avro
+  protobuf
+  graphql
   other
+}
+
+enum SchemaStatus {
+  draft
+  review
+  approved
+  published
+  deprecated
+  archived
+}
+
+enum NamespaceStatus {
+  active
+  archived
+}
+
+enum ChangeAction {
+  created
+  updated
+  deleted
+  published
+  deprecated
+  archived
+}
+
+enum RelationType {
+  extends
+  references
+  imports
+  deprecated_by
 }

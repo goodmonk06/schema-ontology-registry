@@ -7,28 +7,53 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed-enhanced.ts",
+    "db:seed:basic": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset --force",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
+    "nanoid": "^5.1.6",
     "next": "16.0.3",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.2",
     "prisma": "^6.19.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.0.10",
+    "@vitest/ui": "^4.0.10",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "happy-dom": "^20.0.10",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.10",
+    "zod": "^4.1.12"
   }
 }
